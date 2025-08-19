@@ -54,3 +54,8 @@ type Result struct {
 	Prefix  string
 	Results []*ResultItem `json:"results"`
 }
+
+// 抽象scanner接口
+type Scanner interface {
+	Scan(id string, workspace, rule string) (*Result, error)
+}

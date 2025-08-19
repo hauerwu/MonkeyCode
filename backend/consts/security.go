@@ -69,3 +69,12 @@ func (s SecurityScanningLanguage) RuleName() string {
 	}
 	return fmt.Sprintf("%s 安全扫描", s)
 }
+
+// 扫描模式
+type SecurityScanningMode string
+
+const (
+	SecurityScanningModeLite SecurityScanningMode = "lite" // 极速扫描
+	SecurityScanningModeMax  SecurityScanningMode = "max"  // 旗舰扫描
+
+)

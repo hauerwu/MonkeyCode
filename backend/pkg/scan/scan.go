@@ -9,7 +9,13 @@ import (
 	"strings"
 )
 
-func Scan(id string, workspace, rule string) (*Result, error) {
+type ScannerLite struct{}
+
+func NewScannerLite() *ScannerLite {
+	return &ScannerLite{}
+}
+
+func (s ScannerLite) Scan(id string, workspace, rule string) (*Result, error) {
 	if _, err := os.Stat(workspace); err != nil {
 		return nil, fmt.Errorf("failed to stat workspace: %w", err)
 	}
