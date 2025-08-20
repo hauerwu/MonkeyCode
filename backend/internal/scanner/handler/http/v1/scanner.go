@@ -23,6 +23,7 @@ func NewScannerHandler(w *web.Web, logger *slog.Logger) *ScannerHandler {
 		scannerMgr: scan.NewScannerMgr(),
 	}
 
+	liteScanner := scan.NewScannerLite()
 	// 注册所有语言的Lite模式scanner
 	for _, language := range []consts.SecurityScanningLanguage{
 		consts.SecurityScanningLanguageCpp,
@@ -51,11 +52,13 @@ func NewScannerHandler(w *web.Web, logger *slog.Logger) *ScannerHandler {
 		consts.SecurityScanningLanguageSecrets,
 		consts.SecurityScanningLanguageIaC,
 	} {
-		s.scannerMgr.RegisterScanner(language, consts.SecurityScanningModeLite, scan.NewScannerLite())
+		s.scannerMgr.RegisterScanner(language, consts.SecurityScanningModeLite, liteScanner)
 	}
 
-	// 只有Java语言支持Max模式
-	s.scannerMgr.RegisterScanner(consts.SecurityScanningLanguageJava, consts.SecurityScanningModeMax, scan.NewDefaultScannerJavaMax())
+	// 暂时只有Java语言支持Max模式(max模式扫描失败退回lite模式扫描)
+	s.scannerMgr.RegisterScanner(consts.SecurityScanningLanguageJava,
+		consts.SecurityScanningModeMax,
+		scan.NewScannerChain(scan.NewDefaultScannerJavaMax(), liteScanner))
 
 	w.POST("/api/v1/scan", web.BindHandler(s.Scan))
 

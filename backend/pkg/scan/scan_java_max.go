@@ -30,19 +30,15 @@ func (s ScannerJavaMax) Scan(id string, workspace, rule string) (*Result, error)
 
 	// 构建工程
 	if err := s.build(workspace); err != nil {
-		slog.Warn("[Scan] Failed to build project, falling back to lite mode", "error", err)
-		// 回退到lite模式
-		liteScanner := NewScannerLite()
-		return liteScanner.Scan(id, workspace, rule)
+		slog.Warn("[Scan] Failed to build project", "error", err)
+		return nil, fmt.Errorf("failed to build project: %w", err)
 	}
 
 	//生成一个随机的临时目录
 	tempDir, err := os.MkdirTemp("", "corax")
 	if err != nil {
-		slog.Warn("[Scan] Failed to create temp directory, falling back to lite mode", "error", err)
-		// 回退到lite模式
-		liteScanner := NewScannerLite()
-		return liteScanner.Scan(id, workspace, rule)
+		slog.Warn("[Scan] Failed to create temp directory", "error", err)
+		return nil, fmt.Errorf("failed to create temp directory: %w", err)
 	}
 	defer os.RemoveAll(tempDir)
 
@@ -60,19 +56,15 @@ func (s ScannerJavaMax) Scan(id string, workspace, rule string) (*Result, error)
 	// 执行命令
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		slog.Warn("[Scan] Failed to run command, falling back to lite mode", "error", err)
-		// 回退到lite模式
-		liteScanner := NewScannerLite()
-		return liteScanner.Scan(id, workspace, rule)
+		slog.Warn("[Scan] Failed to run command", "error", err)
+		return nil, fmt.Errorf("failed to run command: %w", err)
 	}
 
 	// 从 /sarif 目录读取所有 .sarif 文件并解析
 	result, err := parseSarifFilesToResult(fmt.Sprintf("%s/sarif", tempDir))
 	if err != nil {
-		slog.Warn("[Scan] Failed to parse SARIF files, falling back to lite mode", "error", err)
-		// 回退到lite模式
-		liteScanner := NewScannerLite()
-		return liteScanner.Scan(id, workspace, rule)
+		slog.Warn("[Scan] Failed to parse SARIF files", "error", err)
+		return nil, fmt.Errorf("failed to parse SARIF files: %w", err)
 	}
 
 	// 设置 Result 的其他字段
