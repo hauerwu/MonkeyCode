@@ -39,6 +39,8 @@ type SecurityScanning struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// Mode holds the value of the "mode" field.
+	Mode consts.SecurityScanningMode `json:"mode,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the SecurityScanningQuery when eager-loading is set.
 	Edges        SecurityScanningEdges `json:"edges"`
@@ -94,7 +96,7 @@ func (*SecurityScanning) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case securityscanning.FieldStatus, securityscanning.FieldWorkspace, securityscanning.FieldLanguage, securityscanning.FieldRule, securityscanning.FieldErrorMessage:
+		case securityscanning.FieldStatus, securityscanning.FieldWorkspace, securityscanning.FieldLanguage, securityscanning.FieldRule, securityscanning.FieldErrorMessage, securityscanning.FieldMode:
 			values[i] = new(sql.NullString)
 		case securityscanning.FieldCreatedAt, securityscanning.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -175,6 +177,12 @@ func (ss *SecurityScanning) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				ss.UpdatedAt = value.Time
 			}
+		case securityscanning.FieldMode:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field mode", values[i])
+			} else if value.Valid {
+				ss.Mode = consts.SecurityScanningMode(value.String)
+			}
 		default:
 			ss.selectValues.Set(columns[i], values[i])
 		}
@@ -252,6 +260,9 @@ func (ss *SecurityScanning) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(ss.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("mode=")
+	builder.WriteString(fmt.Sprintf("%v", ss.Mode))
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -71,6 +71,7 @@ func (p *ProxyUsecase) requeue() {
 			UserID:    scanning.UserID.String(),
 			Workspace: scanning.Workspace,
 			Language:  scanning.Language,
+			Mode:      scanning.Mode,
 		}, p.TaskHandle)
 	}
 }

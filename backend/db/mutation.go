@@ -13147,6 +13147,7 @@ type SecurityScanningMutation struct {
 	error_message         *string
 	created_at            *time.Time
 	updated_at            *time.Time
+	mode                  *consts.SecurityScanningMode
 	clearedFields         map[string]struct{}
 	user                  *uuid.UUID
 	cleareduser           bool
@@ -13614,6 +13615,42 @@ func (m *SecurityScanningMutation) ResetUpdatedAt() {
 	m.updated_at = nil
 }
 
+// SetMode sets the "mode" field.
+func (m *SecurityScanningMutation) SetMode(csm consts.SecurityScanningMode) {
+	m.mode = &csm
+}
+
+// Mode returns the value of the "mode" field in the mutation.
+func (m *SecurityScanningMutation) Mode() (r consts.SecurityScanningMode, exists bool) {
+	v := m.mode
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMode returns the old "mode" field's value of the SecurityScanning entity.
+// If the SecurityScanning object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SecurityScanningMutation) OldMode(ctx context.Context) (v consts.SecurityScanningMode, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMode is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMode requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMode: %w", err)
+	}
+	return oldValue.Mode, nil
+}
+
+// ResetMode resets all changes to the "mode" field.
+func (m *SecurityScanningMutation) ResetMode() {
+	m.mode = nil
+}
+
 // ClearUser clears the "user" edge to the User entity.
 func (m *SecurityScanningMutation) ClearUser() {
 	m.cleareduser = true
@@ -13769,7 +13806,7 @@ func (m *SecurityScanningMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *SecurityScanningMutation) Fields() []string {
-	fields := make([]string, 0, 9)
+	fields := make([]string, 0, 10)
 	if m.user != nil {
 		fields = append(fields, securityscanning.FieldUserID)
 	}
@@ -13797,6 +13834,9 @@ func (m *SecurityScanningMutation) Fields() []string {
 	if m.updated_at != nil {
 		fields = append(fields, securityscanning.FieldUpdatedAt)
 	}
+	if m.mode != nil {
+		fields = append(fields, securityscanning.FieldMode)
+	}
 	return fields
 }
 
@@ -13823,6 +13863,8 @@ func (m *SecurityScanningMutation) Field(name string) (ent.Value, bool) {
 		return m.CreatedAt()
 	case securityscanning.FieldUpdatedAt:
 		return m.UpdatedAt()
+	case securityscanning.FieldMode:
+		return m.Mode()
 	}
 	return nil, false
 }
@@ -13850,6 +13892,8 @@ func (m *SecurityScanningMutation) OldField(ctx context.Context, name string) (e
 		return m.OldCreatedAt(ctx)
 	case securityscanning.FieldUpdatedAt:
 		return m.OldUpdatedAt(ctx)
+	case securityscanning.FieldMode:
+		return m.OldMode(ctx)
 	}
 	return nil, fmt.Errorf("unknown SecurityScanning field %s", name)
 }
@@ -13921,6 +13965,13 @@ func (m *SecurityScanningMutation) SetField(name string, value ent.Value) error 
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUpdatedAt(v)
+		return nil
+	case securityscanning.FieldMode:
+		v, ok := value.(consts.SecurityScanningMode)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMode(v)
 		return nil
 	}
 	return fmt.Errorf("unknown SecurityScanning field %s", name)
@@ -14012,6 +14063,9 @@ func (m *SecurityScanningMutation) ResetField(name string) error {
 		return nil
 	case securityscanning.FieldUpdatedAt:
 		m.ResetUpdatedAt()
+		return nil
+	case securityscanning.FieldMode:
+		m.ResetMode()
 		return nil
 	}
 	return fmt.Errorf("unknown SecurityScanning field %s", name)

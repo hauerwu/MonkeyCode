@@ -32,6 +32,8 @@ const (
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
+	// FieldMode holds the string denoting the mode field in the database.
+	FieldMode = "mode"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
 	// EdgeResults holds the string denoting the results edge name in mutations.
@@ -75,6 +77,7 @@ var Columns = []string{
 	FieldErrorMessage,
 	FieldCreatedAt,
 	FieldUpdatedAt,
+	FieldMode,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -145,6 +148,11 @@ func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByUpdatedAt orders the results by the updated_at field.
 func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// ByMode orders the results by the mode field.
+func ByMode(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldMode, opts...).ToFunc()
 }
 
 // ByUserField orders the results by user field.

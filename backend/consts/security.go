@@ -76,5 +76,12 @@ type SecurityScanningMode string
 const (
 	SecurityScanningModeLite SecurityScanningMode = "lite" // 极速扫描
 	SecurityScanningModeMax  SecurityScanningMode = "max"  // 旗舰扫描
-
 )
+
+// 校验mode，默认为lite
+func (m SecurityScanningMode) Valid() SecurityScanningMode {
+	if m != SecurityScanningModeLite && m != SecurityScanningModeMax {
+		return SecurityScanningModeLite
+	}
+	return m
+}

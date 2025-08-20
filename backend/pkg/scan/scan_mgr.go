@@ -25,6 +25,9 @@ func (sm *ScannerMgr) GetScanner(language consts.SecurityScanningLanguage, mode 
 		return nil
 	}
 
+	//校验mode
+	mode = mode.Valid()
+
 	scanner := sm.scannerMap[language][mode]
 
 	// 如果是max模式且获取不到，则退回为lite模式

@@ -172,6 +172,20 @@ func (ssu *SecurityScanningUpdate) SetNillableUpdatedAt(t *time.Time) *SecurityS
 	return ssu
 }
 
+// SetMode sets the "mode" field.
+func (ssu *SecurityScanningUpdate) SetMode(csm consts.SecurityScanningMode) *SecurityScanningUpdate {
+	ssu.mutation.SetMode(csm)
+	return ssu
+}
+
+// SetNillableMode sets the "mode" field if the given value is not nil.
+func (ssu *SecurityScanningUpdate) SetNillableMode(csm *consts.SecurityScanningMode) *SecurityScanningUpdate {
+	if csm != nil {
+		ssu.SetMode(*csm)
+	}
+	return ssu
+}
+
 // SetUser sets the "user" edge to the User entity.
 func (ssu *SecurityScanningUpdate) SetUser(u *User) *SecurityScanningUpdate {
 	return ssu.SetUserID(u.ID)
@@ -323,6 +337,9 @@ func (ssu *SecurityScanningUpdate) sqlSave(ctx context.Context) (n int, err erro
 	}
 	if value, ok := ssu.mutation.UpdatedAt(); ok {
 		_spec.SetField(securityscanning.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := ssu.mutation.Mode(); ok {
+		_spec.SetField(securityscanning.FieldMode, field.TypeString, value)
 	}
 	if ssu.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -587,6 +604,20 @@ func (ssuo *SecurityScanningUpdateOne) SetNillableUpdatedAt(t *time.Time) *Secur
 	return ssuo
 }
 
+// SetMode sets the "mode" field.
+func (ssuo *SecurityScanningUpdateOne) SetMode(csm consts.SecurityScanningMode) *SecurityScanningUpdateOne {
+	ssuo.mutation.SetMode(csm)
+	return ssuo
+}
+
+// SetNillableMode sets the "mode" field if the given value is not nil.
+func (ssuo *SecurityScanningUpdateOne) SetNillableMode(csm *consts.SecurityScanningMode) *SecurityScanningUpdateOne {
+	if csm != nil {
+		ssuo.SetMode(*csm)
+	}
+	return ssuo
+}
+
 // SetUser sets the "user" edge to the User entity.
 func (ssuo *SecurityScanningUpdateOne) SetUser(u *User) *SecurityScanningUpdateOne {
 	return ssuo.SetUserID(u.ID)
@@ -768,6 +799,9 @@ func (ssuo *SecurityScanningUpdateOne) sqlSave(ctx context.Context) (_node *Secu
 	}
 	if value, ok := ssuo.mutation.UpdatedAt(); ok {
 		_spec.SetField(securityscanning.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := ssuo.mutation.Mode(); ok {
+		_spec.SetField(securityscanning.FieldMode, field.TypeString, value)
 	}
 	if ssuo.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{

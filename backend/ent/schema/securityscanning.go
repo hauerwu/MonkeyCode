@@ -39,6 +39,7 @@ func (SecurityScanning) Fields() []ent.Field {
 		field.String("error_message").Optional(),
 		field.Time("created_at").Default(time.Now),
 		field.Time("updated_at").Default(time.Now),
+		field.String("mode").GoType(consts.SecurityScanningMode("")),
 	}
 }
 

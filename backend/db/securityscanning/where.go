@@ -104,6 +104,12 @@ func UpdatedAt(v time.Time) predicate.SecurityScanning {
 	return predicate.SecurityScanning(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
+// Mode applies equality check predicate on the "mode" field. It's identical to ModeEQ.
+func Mode(v consts.SecurityScanningMode) predicate.SecurityScanning {
+	vc := string(v)
+	return predicate.SecurityScanning(sql.FieldEQ(FieldMode, vc))
+}
+
 // UserIDEQ applies the EQ predicate on the "user_id" field.
 func UserIDEQ(v uuid.UUID) predicate.SecurityScanning {
 	return predicate.SecurityScanning(sql.FieldEQ(FieldUserID, v))
@@ -605,6 +611,90 @@ func UpdatedAtLT(v time.Time) predicate.SecurityScanning {
 // UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
 func UpdatedAtLTE(v time.Time) predicate.SecurityScanning {
 	return predicate.SecurityScanning(sql.FieldLTE(FieldUpdatedAt, v))
+}
+
+// ModeEQ applies the EQ predicate on the "mode" field.
+func ModeEQ(v consts.SecurityScanningMode) predicate.SecurityScanning {
+	vc := string(v)
+	return predicate.SecurityScanning(sql.FieldEQ(FieldMode, vc))
+}
+
+// ModeNEQ applies the NEQ predicate on the "mode" field.
+func ModeNEQ(v consts.SecurityScanningMode) predicate.SecurityScanning {
+	vc := string(v)
+	return predicate.SecurityScanning(sql.FieldNEQ(FieldMode, vc))
+}
+
+// ModeIn applies the In predicate on the "mode" field.
+func ModeIn(vs ...consts.SecurityScanningMode) predicate.SecurityScanning {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = string(vs[i])
+	}
+	return predicate.SecurityScanning(sql.FieldIn(FieldMode, v...))
+}
+
+// ModeNotIn applies the NotIn predicate on the "mode" field.
+func ModeNotIn(vs ...consts.SecurityScanningMode) predicate.SecurityScanning {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = string(vs[i])
+	}
+	return predicate.SecurityScanning(sql.FieldNotIn(FieldMode, v...))
+}
+
+// ModeGT applies the GT predicate on the "mode" field.
+func ModeGT(v consts.SecurityScanningMode) predicate.SecurityScanning {
+	vc := string(v)
+	return predicate.SecurityScanning(sql.FieldGT(FieldMode, vc))
+}
+
+// ModeGTE applies the GTE predicate on the "mode" field.
+func ModeGTE(v consts.SecurityScanningMode) predicate.SecurityScanning {
+	vc := string(v)
+	return predicate.SecurityScanning(sql.FieldGTE(FieldMode, vc))
+}
+
+// ModeLT applies the LT predicate on the "mode" field.
+func ModeLT(v consts.SecurityScanningMode) predicate.SecurityScanning {
+	vc := string(v)
+	return predicate.SecurityScanning(sql.FieldLT(FieldMode, vc))
+}
+
+// ModeLTE applies the LTE predicate on the "mode" field.
+func ModeLTE(v consts.SecurityScanningMode) predicate.SecurityScanning {
+	vc := string(v)
+	return predicate.SecurityScanning(sql.FieldLTE(FieldMode, vc))
+}
+
+// ModeContains applies the Contains predicate on the "mode" field.
+func ModeContains(v consts.SecurityScanningMode) predicate.SecurityScanning {
+	vc := string(v)
+	return predicate.SecurityScanning(sql.FieldContains(FieldMode, vc))
+}
+
+// ModeHasPrefix applies the HasPrefix predicate on the "mode" field.
+func ModeHasPrefix(v consts.SecurityScanningMode) predicate.SecurityScanning {
+	vc := string(v)
+	return predicate.SecurityScanning(sql.FieldHasPrefix(FieldMode, vc))
+}
+
+// ModeHasSuffix applies the HasSuffix predicate on the "mode" field.
+func ModeHasSuffix(v consts.SecurityScanningMode) predicate.SecurityScanning {
+	vc := string(v)
+	return predicate.SecurityScanning(sql.FieldHasSuffix(FieldMode, vc))
+}
+
+// ModeEqualFold applies the EqualFold predicate on the "mode" field.
+func ModeEqualFold(v consts.SecurityScanningMode) predicate.SecurityScanning {
+	vc := string(v)
+	return predicate.SecurityScanning(sql.FieldEqualFold(FieldMode, vc))
+}
+
+// ModeContainsFold applies the ContainsFold predicate on the "mode" field.
+func ModeContainsFold(v consts.SecurityScanningMode) predicate.SecurityScanning {
+	vc := string(v)
+	return predicate.SecurityScanning(sql.FieldContainsFold(FieldMode, vc))
 }
 
 // HasUser applies the HasEdge predicate on the "user" edge.

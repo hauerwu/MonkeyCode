@@ -114,6 +114,12 @@ func (ssc *SecurityScanningCreate) SetNillableUpdatedAt(t *time.Time) *SecurityS
 	return ssc
 }
 
+// SetMode sets the "mode" field.
+func (ssc *SecurityScanningCreate) SetMode(csm consts.SecurityScanningMode) *SecurityScanningCreate {
+	ssc.mutation.SetMode(csm)
+	return ssc
+}
+
 // SetID sets the "id" field.
 func (ssc *SecurityScanningCreate) SetID(u uuid.UUID) *SecurityScanningCreate {
 	ssc.mutation.SetID(u)
@@ -219,6 +225,9 @@ func (ssc *SecurityScanningCreate) check() error {
 	if _, ok := ssc.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`db: missing required field "SecurityScanning.updated_at"`)}
 	}
+	if _, ok := ssc.mutation.Mode(); !ok {
+		return &ValidationError{Name: "mode", err: errors.New(`db: missing required field "SecurityScanning.mode"`)}
+	}
 	if len(ssc.mutation.UserIDs()) == 0 {
 		return &ValidationError{Name: "user", err: errors.New(`db: missing required edge "SecurityScanning.user"`)}
 	}
@@ -288,6 +297,10 @@ func (ssc *SecurityScanningCreate) createSpec() (*SecurityScanning, *sqlgraph.Cr
 	if value, ok := ssc.mutation.UpdatedAt(); ok {
 		_spec.SetField(securityscanning.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := ssc.mutation.Mode(); ok {
+		_spec.SetField(securityscanning.FieldMode, field.TypeString, value)
+		_node.Mode = value
 	}
 	if nodes := ssc.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -511,6 +524,18 @@ func (u *SecurityScanningUpsert) UpdateUpdatedAt() *SecurityScanningUpsert {
 	return u
 }
 
+// SetMode sets the "mode" field.
+func (u *SecurityScanningUpsert) SetMode(v consts.SecurityScanningMode) *SecurityScanningUpsert {
+	u.Set(securityscanning.FieldMode, v)
+	return u
+}
+
+// UpdateMode sets the "mode" field to the value that was provided on create.
+func (u *SecurityScanningUpsert) UpdateMode() *SecurityScanningUpsert {
+	u.SetExcluded(securityscanning.FieldMode)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -696,6 +721,20 @@ func (u *SecurityScanningUpsertOne) SetUpdatedAt(v time.Time) *SecurityScanningU
 func (u *SecurityScanningUpsertOne) UpdateUpdatedAt() *SecurityScanningUpsertOne {
 	return u.Update(func(s *SecurityScanningUpsert) {
 		s.UpdateUpdatedAt()
+	})
+}
+
+// SetMode sets the "mode" field.
+func (u *SecurityScanningUpsertOne) SetMode(v consts.SecurityScanningMode) *SecurityScanningUpsertOne {
+	return u.Update(func(s *SecurityScanningUpsert) {
+		s.SetMode(v)
+	})
+}
+
+// UpdateMode sets the "mode" field to the value that was provided on create.
+func (u *SecurityScanningUpsertOne) UpdateMode() *SecurityScanningUpsertOne {
+	return u.Update(func(s *SecurityScanningUpsert) {
+		s.UpdateMode()
 	})
 }
 
@@ -1051,6 +1090,20 @@ func (u *SecurityScanningUpsertBulk) SetUpdatedAt(v time.Time) *SecurityScanning
 func (u *SecurityScanningUpsertBulk) UpdateUpdatedAt() *SecurityScanningUpsertBulk {
 	return u.Update(func(s *SecurityScanningUpsert) {
 		s.UpdateUpdatedAt()
+	})
+}
+
+// SetMode sets the "mode" field.
+func (u *SecurityScanningUpsertBulk) SetMode(v consts.SecurityScanningMode) *SecurityScanningUpsertBulk {
+	return u.Update(func(s *SecurityScanningUpsert) {
+		s.SetMode(v)
+	})
+}
+
+// UpdateMode sets the "mode" field to the value that was provided on create.
+func (u *SecurityScanningUpsertBulk) UpdateMode() *SecurityScanningUpsertBulk {
+	return u.Update(func(s *SecurityScanningUpsert) {
+		s.UpdateMode()
 	})
 }
 

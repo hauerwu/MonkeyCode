@@ -392,6 +392,7 @@ var (
 		{Name: "error_message", Type: field.TypeString, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "mode", Type: field.TypeString},
 		{Name: "user_id", Type: field.TypeUUID},
 		{Name: "workspace_id", Type: field.TypeUUID},
 	}
@@ -403,13 +404,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "security_scannings_users_security_scannings",
-				Columns:    []*schema.Column{SecurityScanningsColumns[8]},
+				Columns:    []*schema.Column{SecurityScanningsColumns[9]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "security_scannings_workspaces_security_scannings",
-				Columns:    []*schema.Column{SecurityScanningsColumns[9]},
+				Columns:    []*schema.Column{SecurityScanningsColumns[10]},
 				RefColumns: []*schema.Column{WorkspacesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
