@@ -1,0 +1,1 @@
+ALTER TABLE security_scannings DROP COLUMN mode;

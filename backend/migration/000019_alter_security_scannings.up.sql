@@ -1,0 +1,1 @@
+ALTER TABLE security_scannings ADD COLUMN mode VARCHAR(50) NOT NULL;
