@@ -10,11 +10,14 @@ import (
 	"maps"
 	"net/http"
 	"net/url"
+	"os"
 	"path"
+	"strings"
 	"time"
 
 	"github.com/cloudwego/eino-ext/components/model/openai"
 	"github.com/cloudwego/eino/schema"
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/google/uuid"
 
 	"github.com/chaitin/MonkeyCode/backend/config"
@@ -39,6 +42,30 @@ func NewModelUsecase(
 	repo domain.ModelRepo,
 	cfg *config.Config,
 ) domain.ModelUsecase {
+	//取读并启用代理
+	proxyFunc := func() func(*http.Request) (*url.URL, error) {
+		proxy := strings.TrimSpace(os.Getenv("HTTP_PROXY"))
+
+		if proxy != "" {
+			proxyURL, err := url.Parse(proxy)
+			if err != nil {
+				log.Error("failed to parse proxy URL ", proxy, err)
+				return nil
+			}
+			result := http.ProxyURL(proxyURL)
+			if result == nil {
+				log.Error("failed to create proxy URL ", proxy)
+			} else {
+				log.Info("using proxy: ", proxyURL.String())
+			}
+
+			return result
+		} else {
+			log.Info("no proxy configured")
+			return nil
+		}
+	}
+
 	client := &http.Client{
 		Timeout: time.Second * 30,
 		Transport: &http.Transport{
@@ -46,6 +73,7 @@ func NewModelUsecase(
 			MaxIdleConnsPerHost: 100,
 			MaxConnsPerHost:     100,
 			IdleConnTimeout:     time.Second * 30,
+			Proxy:               proxyFunc(),
 		},
 	}
 	return &ModelUsecase{repo: repo, cfg: cfg, logger: logger, client: client}
