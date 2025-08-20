@@ -20,7 +20,7 @@ func TestScannerLite_Scan_WorkspaceNotExists(t *testing.T) {
 	scanner := NewScannerLite()
 	id := "test-id"
 	workspace := "/non/existent/path"
-	rule := "test-rule"
+	rule := "java"
 
 	_, err := scanner.Scan(id, workspace, rule)
 	if err == nil {
@@ -58,7 +58,7 @@ func TestScannerLite_Scan_Success(t *testing.T) {
 
 	// 执行扫描
 	id := "test-id"
-	rule := "" // 使用空规则进行测试
+	rule := "java" // 使用空规则进行测试
 	result, err := scanner.Scan(id, workspace, rule)
 	if err != nil {
 		// 如果环境中没有 sgp 命令或者行为不同，这可能是预期的
@@ -91,7 +91,7 @@ func TestScannerLite_Scan_SGPCommandFailed(t *testing.T) {
 
 	// 执行扫描，使用一个无效的规则文件路径
 	id := "test-id"
-	rule := "/non/existent/rule.yaml"
+	rule := "java"
 	_, err = scanner.Scan(id, workspace, rule)
 	if err == nil {
 		t.Fatal("Expected error when sgp command fails, but got nil")

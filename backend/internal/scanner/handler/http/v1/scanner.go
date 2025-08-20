@@ -66,14 +66,12 @@ func NewScannerHandler(w *web.Web, logger *slog.Logger) *ScannerHandler {
 }
 
 func (s *ScannerHandler) Scan(ctx *web.Context, req domain.ScanReq) error {
-	// 将req.Language从string转换为consts.SecurityScanningLanguage
-	language := consts.SecurityScanningLanguage(req.Language)
 
-	scanner := s.scannerMgr.GetScanner(language, req.Mode)
+	scanner := s.scannerMgr.GetScanner(req.Language, req.Mode)
 	if scanner == nil {
 		return fmt.Errorf("unknown scanner for language: %s and mode: %s", req.Language, req.Mode)
 	}
-	result, err := scanner.Scan(req.TaskID, req.Workspace, language.Rule())
+	result, err := scanner.Scan(req.TaskID, req.Workspace, req.Language.Rule())
 	if err != nil {
 		s.logger.With("id", req.TaskID).With("error", err).ErrorContext(ctx.Request().Context(), "failed to scan")
 		return fmt.Errorf("failed to scan: %w", err)

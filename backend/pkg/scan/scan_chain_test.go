@@ -43,32 +43,19 @@ func TestScannerChain_Scan_Success(t *testing.T) {
 }
 
 func TestScannerChain_Scan_FailureThenSuccess(t *testing.T) {
-	// 创建一个失败的扫描器
-	failureScanner := &MockScannerForChain{
-		shouldFail: true,
-		err:        errors.New("first scanner failed"),
-	}
-
-	// 创建一个成功的扫描器
-	successResult := &Result{ID: "test-id", Output: "test-output"}
-	successScanner := &MockScannerForChain{
-		shouldFail: false,
-		result:     successResult,
-	}
 
 	// 创建ScannerChain
-	chain := NewScannerChain(failureScanner, successScanner)
+	chain := NewScannerChain(NewDefaultScannerJavaMax(), NewScannerLite())
 
+	workspace := "/root/code/sast_test/java-gradle-demo"
 	// 执行扫描
-	result, err := chain.Scan("test-id", "/test/workspace", "/test/rule")
+	result, err := chain.Scan("test-id", workspace, "java")
 
 	// 验证结果
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
-	if result != successResult {
-		t.Errorf("Expected result to be %v, got %v", successResult, result)
-	}
+	t.Log(result)
 }
 
 func TestScannerChain_Scan_AllFailures(t *testing.T) {

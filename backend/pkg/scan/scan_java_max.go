@@ -2,6 +2,7 @@ package scan
 
 import (
 	"fmt"
+	"log"
 	"log/slog"
 	"os"
 	"os/exec"
@@ -51,6 +52,7 @@ func (s ScannerJavaMax) Scan(id string, workspace, rule string) (*Result, error)
 		tempDir,                                //输出临时目录路径
 	)
 
+	log.Printf("[Scan] Executing command: %s %s", cmd.Path, strings.Join(cmd.Args[1:], " "))
 	slog.Debug("[Scan] Executing command", "command", cmd.Path, "args", strings.Join(cmd.Args[1:], " "))
 
 	// 执行命令
