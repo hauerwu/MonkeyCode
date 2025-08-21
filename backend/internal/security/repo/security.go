@@ -56,6 +56,7 @@ func (s *SecurityScanningRepo) Create(ctx context.Context, req domain.CreateSecu
 		SetRule(req.Language.RuleName()).
 		SetWorkspace(req.Workspace).
 		SetStatus(consts.SecurityScanningStatusPending).
+		SetMode(req.Mode.Valid()).
 		Save(ctx)
 
 	if err != nil {

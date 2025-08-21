@@ -7,7 +7,7 @@ CORAX_HOME=$1
 WORKSPACE=$2
 OUTPUT=$3
 
-/usr/lib/jvm/java-17-openjdk-amd64/bin/java \
+java \
   -XX:+ExitOnOutOfMemoryError \
   -DLicence=$CORAX_HOME/bin/../lib/license/license \
   -Djava.library.path=$CORAX_HOME/bin/../lib/license/lib \
