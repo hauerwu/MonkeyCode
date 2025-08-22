@@ -19,7 +19,7 @@ GOOS=$TARGETOS GOARCH=$TARGETARCH \
 go build \
 -ldflags "-w -s -X 'github.com/chaitin/MonkeyCode/backend/pkg/version.Version=${VERSION}' -X 'github.com/chaitin/MonkeyCode/backend/pkg/version.BuildTime=${BUILD_TIME}' -X 'github.com/chaitin/MonkeyCode/backend/pkg/version.GitCommit=${GIT_COMMIT}'" \
 -o /out/main \
-pro/cmd/scanner/main.go pro/cmd/scanner/server.go pro/cmd/scanner/wire_gen.go
+pro/cmd/scanner/main.go pro/cmd/scanner/wire_gen.go
 
 FROM debian:bullseye-20250721-slim as binary
 
