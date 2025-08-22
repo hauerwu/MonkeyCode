@@ -181,8 +181,11 @@ func (p *ProxyUsecase) TaskHandle(ctx context.Context, task *queuerunner.Task[do
 	if task.Data.Mode == consts.SecurityScanningModeMax {
 		// 使用pro scanner服务
 		client = p.proClient
-	} else {
+	} else if task.Data.Mode == consts.SecurityScanningModeLite {
 		// 使用普通scanner服务
+		client = p.client
+	} else {
+		//默认
 		client = p.client
 	}
 

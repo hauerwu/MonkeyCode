@@ -1,0 +1,95 @@
+PLATFORM=linux/amd64
+TAG=main
+OUTPUT=type=docker,dest=${HOME}/tmp/monkeycode_server.tar
+GOCACHE=${HOME}/.cache/go-build
+GOMODCACHE=${HOME}/go/pkg/mod
+REGISTRY=monkeycode.chaitin.cn/monkeycode
+VERSION=dev-${shell git rev-parse HEAD}
+BUILD_TIME=${shell date -u +"%Y-%m-%dT%H:%M:%SZ"}
+GIT_COMMIT=${shell git rev-parse HEAD}
+
+# make build PLATFORM= TAG= OUTPUT= GOCACHE=
+image:swag wire
+	docker buildx build \
+	-f build/Dockerfile.debug \
+	--build-arg GOCACHE=${GOCACHE} \
+	--build-arg GOMODCACHE=${GOMODCACHE} \
+	--build-arg REPO_COMMIT=${shell git rev-parse HEAD} \
+	--build-arg VERSION=${VERSION} \
+	--build-arg BUILD_TIME=${BUILD_TIME} \
+	--build-arg GIT_COMMIT=${GIT_COMMIT} \
+	--build-arg HTTP_PROXY=http://proxy.in.chaitin.net:8123 \
+	--build-arg HTTPS_PROXY=http://proxy.in.chaitin.net:8123 \
+	--build-arg NO_PROXY=chaitin.com,chaitin.net,localhost,127.0.0.0/8,::1,25.25.0.0/16,169.254.0.0/16,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,224.0.0.0/4,240.0.0.0/4 \
+	--platform ${PLATFORM} \
+	--tag ${REGISTRY}/backend:${TAG} \
+	.
+
+image-scanner:
+	docker buildx build \
+	  -f build/Dockerfile.scanner.debug \
+	  --build-arg GOCACHE=${GOCACHE} \
+	  --build-arg GOMODCACHE=${GOMODCACHE} \
+	  --build-arg REPO_COMMIT=$(shell git rev-parse HEAD) \
+	  --build-arg VERSION=${VERSION} \
+	  --build-arg BUILD_TIME=${BUILD_TIME} \
+	  --build-arg GIT_COMMIT=${GIT_COMMIT} \
+	  --build-arg HTTP_PROXY=http://proxy.in.chaitin.net:8123 \
+	  --build-arg HTTPS_PROXY=http://proxy.in.chaitin.net:8123 \
+	  --build-arg NO_PROXY=chaitin.com,chaitin.net,localhost,127.0.0.0/8,::1,25.25.0.0/16,169.254.0.0/16,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,224.0.0.0/4,240.0.0.0/4 \
+	  --platform ${PLATFORM} \
+	  --tag ${REGISTRY}/scanner:${TAG} \
+	  .
+
+image-pro-scanner:
+	docker buildx build \
+	  -f build/Dockerfile.pro.scanner.debug \
+	  --build-arg GOCACHE=${GOCACHE} \
+	  --build-arg GOMODCACHE=${GOMODCACHE} \
+	  --build-arg REPO_COMMIT=$(shell git rev-parse HEAD) \
+	  --build-arg VERSION=${VERSION} \
+	  --build-arg BUILD_TIME=${BUILD_TIME} \
+	  --build-arg GIT_COMMIT=${GIT_COMMIT} \
+	  --platform ${PLATFORM} \
+	  --tag ${REGISTRY}/pro-scanner:${TAG} \
+	  .
+
+wire:
+	wire pro/cmd/server/wire.go pro/cmd/server/main.go
+
+wire-scanner:
+	wire cmd/scanner/wire.go cmd/scanner/main.go
+
+swag:
+	swag fmt -d internal && swag init --pd -g cmd/server/main.go -ot "json"
+
+migrate_sql:
+	migrate create -ext sql -dir migration -seq ${SEQ}
+
+prepare:
+	mkdir -p assets-amd64/sgp
+	mkdir -p assets-arm64/sgp
+	mkdir -p assets-amd64/Canary
+	mkdir -p assets-arm64/Canary
+	mkdir -p assets/vsix
+	touch docs/swagger.json
+
+	# 下载 xdb
+	wget -O pkg/ipdb/ip2region.xdb https://baizhiyun.oss-cn-hangzhou.aliyuncs.com/monkeycode/ip2region.xdb
+		  
+	wget -O assets/vsix/monkeycode-1.13.0.vsix https://baizhiyun.oss-cn-hangzhou.aliyuncs.com/monkeycode/vsix/monkeycode-1.13.0.vsix
+
+	# 下载 x86_64 SGP
+	wget -O assets-amd64/sgp/sgp https://baizhiyun.oss-cn-hangzhou.aliyuncs.com/monkeycode/sgp/x86_64/sgp
+	wget -O assets-amd64/sgp/sgp-rules https://baizhiyun.oss-cn-hangzhou.aliyuncs.com/monkeycode/sgp/x86_64/sgp-rules
+	chmod +x assets-amd64/sgp/sgp
+		  
+	# # 下载 aarch64 SGP
+	# wget -O assets-arm64/sgp/sgp https://baizhiyun.oss-cn-hangzhou.aliyuncs.com/monkeycode/sgp/aarch64/sgp
+	# wget -O assets-arm64/sgp/sgp-rules https://baizhiyun.oss-cn-hangzhou.aliyuncs.com/monkeycode/sgp/aarch64/sgp-rules
+	# chmod +x assets-arm64/sgp/sgp
+
+	cp pkg/scan/scripts/corax_cmd.sh ./assets-amd64/Canary/
+	cp pkg/scan/scripts/corax_cmd.sh ./assets-arm64/Canary/
+
+PHONY: prepare
