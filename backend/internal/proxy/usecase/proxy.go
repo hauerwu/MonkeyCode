@@ -177,15 +177,13 @@ func (p *ProxyUsecase) TaskHandle(ctx context.Context, task *queuerunner.Task[do
 
 	// 根据mode选择不同的scanner服务
 	var client *request.Client
-	var scanPath string
+	scanPath := "/api/v1/scan"
 	if task.Data.Mode == consts.SecurityScanningModeMax {
 		// 使用pro scanner服务
 		client = p.proClient
-		scanPath = "/api/v1/pro/scan"
 	} else {
 		// 使用普通scanner服务
 		client = p.client
-		scanPath = "/api/v1/scan"
 	}
 
 	result, err := request.Post[scan.Result](client, scanPath, domain.ScanReq{
