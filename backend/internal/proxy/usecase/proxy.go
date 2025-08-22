@@ -29,6 +29,7 @@ type ProxyUsecase struct {
 	logger       *slog.Logger
 	queuerunner  *queuerunner.QueueRunner[domain.CreateSecurityScanningReq]
 	client       *request.Client
+	proClient    *request.Client
 }
 
 func NewProxyUsecase(
@@ -47,6 +48,17 @@ func NewProxyUsecase(
 		ForceAttemptHTTP2:   true,
 	}))
 	client.SetDebug(cfg.Debug)
+
+	// 创建pro scanner客户端
+	proClient := request.NewClient("http", "monkeycode-pro-scanner:8888", 30*time.Minute, request.WithTransport(&http.Transport{
+		MaxIdleConns:        100,
+		MaxIdleConnsPerHost: 100,
+		MaxConnsPerHost:     100,
+		IdleConnTimeout:     90 * time.Second,
+		ForceAttemptHTTP2:   true,
+	}))
+	proClient.SetDebug(cfg.Debug)
+
 	p := &ProxyUsecase{
 		repo:         repo,
 		modelRepo:    modelRepo,
@@ -54,6 +66,7 @@ func NewProxyUsecase(
 		logger:       logger.With("module", "ProxyUsecase"),
 		queuerunner:  queuerunner.NewQueueRunner[domain.CreateSecurityScanningReq](cfg, redis, logger),
 		client:       client,
+		proClient:    proClient,
 	}
 	go p.queuerunner.Run(context.Background())
 	go p.requeue()
@@ -162,7 +175,20 @@ func (p *ProxyUsecase) TaskHandle(ctx context.Context, task *queuerunner.Task[do
 		return err
 	}
 
-	result, err := request.Post[scan.Result](p.client, "/api/v1/scan", domain.ScanReq{
+	// 根据mode选择不同的scanner服务
+	var client *request.Client
+	var scanPath string
+	if task.Data.Mode == consts.SecurityScanningModeMax {
+		// 使用pro scanner服务
+		client = p.proClient
+		scanPath = "/api/v1/pro/scan"
+	} else {
+		// 使用普通scanner服务
+		client = p.client
+		scanPath = "/api/v1/scan"
+	}
+
+	result, err := request.Post[scan.Result](client, scanPath, domain.ScanReq{
 		TaskID:    task.ID,
 		UserID:    task.Data.UserID,
 		Workspace: rootPath,

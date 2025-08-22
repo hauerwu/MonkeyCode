@@ -1,0 +1,48 @@
+FROM --platform=$BUILDPLATFORM golang:1.23-alpine AS builder
+
+WORKDIR /src
+ENV CGO_ENABLED=0
+
+COPY go.* .
+ARG GOMODCACHE
+RUN --mount=type=cache,target=${GOMODCACHE} \
+    go mod download
+
+ARG TARGETOS TARGETARCH GOCACHE
+ARG VERSION
+ARG BUILD_TIME
+ARG GIT_COMMIT
+RUN --mount=type=bind,target=. \
+--mount=type=cache,target=${GOMODCACHE} \
+--mount=type=cache,target=${GOCACHE} \
+GOOS=$TARGETOS GOARCH=$TARGETARCH \
+go build \
+-ldflags "-w -s -X 'github.com/chaitin/MonkeyCode/backend/pkg/version.Version=${VERSION}' -X 'github.com/chaitin/MonkeyCode/backend/pkg/version.BuildTime=${BUILD_TIME}' -X 'github.com/chaitin/MonkeyCode/backend/pkg/version.GitCommit=${GIT_COMMIT}'" \
+-o /out/main \
+pro/cmd/scanner/main.go pro/cmd/scanner/server.go pro/cmd/scanner/wire_gen.go
+
+FROM debian:bullseye-20250721-slim as binary
+
+WORKDIR /app
+
+# 安装 Maven 和 Gradle
+RUN apt update && apt install -y openjdk-17-jdk maven wget unzip
+
+RUN wget -O /usr/share/gradle-8.6-bin.zip https://services.gradle.org/distributions/gradle-8.6-bin.zip && \
+    unzip -d /usr/share /usr/share/gradle-8.6-bin.zip && rm /usr/share/gradle-8.6-bin.zip && \
+    ln -s /usr/share/gradle-8.6/bin/gradle /usr/bin/gradle
+
+# 验证工具链
+RUN mvn -v && gradle -v
+
+# 拷贝maven配置
+RUN mkdir -p /root/.m2
+ADD build/settings.xml /root/.m2/
+
+ARG TARGETARCH
+COPY assets-${TARGETARCH}/sgp ./assets/sgp
+COPY assets-${TARGETARCH}/Canary ./assets/Canary
+
+COPY --from=builder /out/main /app/main
+
+CMD [ "./main" ]

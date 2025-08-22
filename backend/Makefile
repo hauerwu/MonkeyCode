@@ -37,11 +37,28 @@ image-scanner:
 	  --output ${OUTPUT} \
 	  .
 
+image-pro-scanner:
+	docker buildx build \
+	  -f build/Dockerfile.pro.scanner \
+	  --build-arg GOCACHE=${GOCACHE} \
+	  --build-arg GOMODCACHE=${GOMODCACHE} \
+	  --build-arg REPO_COMMIT=$(shell git rev-parse HEAD) \
+	  --build-arg VERSION=${VERSION} \
+	  --build-arg BUILD_TIME=${BUILD_TIME} \
+	  --build-arg GIT_COMMIT=${GIT_COMMIT} \
+	  --platform ${PLATFORM} \
+	  --tag ${REGISTRY}/pro-scanner:${TAG} \
+	  --output ${OUTPUT} \
+	  .
+
 wire:
 	wire pro/cmd/server/wire.go pro/cmd/server/main.go
 
 wire-scanner:
 	wire cmd/scanner/wire.go cmd/scanner/main.go
+
+wire-pro-scanner:
+	wire pro/cmd/scanner/wire.go pro/cmd/scanner/main.go
 
 swag:
 	swag fmt -d internal && swag init --pd -g cmd/server/main.go -ot "json"

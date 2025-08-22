@@ -55,11 +55,6 @@ func NewScannerHandler(w *web.Web, logger *slog.Logger) *ScannerHandler {
 		s.scannerMgr.RegisterScanner(language, consts.SecurityScanningModeLite, liteScanner)
 	}
 
-	// 暂时只有Java语言支持Max模式(max模式扫描失败退回lite模式扫描)
-	s.scannerMgr.RegisterScanner(consts.SecurityScanningLanguageJava,
-		consts.SecurityScanningModeMax,
-		scan.NewScannerChain(scan.NewDefaultScannerJavaMax(), liteScanner))
-
 	w.POST("/api/v1/scan", web.BindHandler(s.Scan))
 
 	return s
