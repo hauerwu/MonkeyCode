@@ -197,6 +197,18 @@ func (p *ProxyUsecase) TaskHandle(ctx context.Context, task *queuerunner.Task[do
 		Mode:      task.Data.Mode,
 	})
 
+	//如果使用的是proClient，并且扫描失败，回退为使用client扫描
+	if task.Data.Mode == consts.SecurityScanningModeMax && err != nil {
+		client = p.client
+		result, err = request.Post[scan.Result](client, scanPath, domain.ScanReq{
+			TaskID:    task.ID,
+			UserID:    task.Data.UserID,
+			Workspace: rootPath,
+			Language:  task.Data.Language,
+			Mode:      task.Data.Mode,
+		})
+	}
+
 	if err != nil {
 		if err = p.securityRepo.Update(ctx, id, fileMap, consts.SecurityScanningStatusFailed, &scan.Result{
 			Output: err.Error(),
