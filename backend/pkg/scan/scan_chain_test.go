@@ -45,7 +45,7 @@ func TestScannerChain_Scan_Success(t *testing.T) {
 func TestScannerChain_Scan_FailureThenSuccess(t *testing.T) {
 
 	// 创建ScannerChain
-	chain := NewScannerChain(NewDefaultScannerJavaMax(), NewScannerLite())
+	chain := NewScannerChain(NewScannerLite(), NewScannerLite())
 
 	workspace := "/root/code/sast_test/java-gradle-demo"
 	// 执行扫描
